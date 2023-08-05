@@ -1,21 +1,64 @@
+
 import React from 'react';
 import { IProduct } from '../../data/products';
 
-interface ProductProps {
+interface IProductProps {
   product: IProduct;
+  selectProduct: (id: number) => void;
 }
-export class Product extends React.Component<ProductProps> {
+
+type TProductState = {
+  // isSelected: boolean;
+  isDeleted: boolean;
+  selectedProducts: string[],
+}
+
+
+class Product extends React.Component<IProductProps, TProductState> {
+  constructor(props: IProductProps) {
+    super(props);
+    this.state = {
+      // isSelected: false,
+      isDeleted: false,
+      selectedProducts: [],
+    }
+  }
+
   styles() {
-    let cardClass1 = 'border-2 py-4 px-4 text-center w-48 flex flex-col items-center';
-    let cardClass2 = 'border-2 py-4 px-4 text-center w-48 flex flex-col items-center bg-slate-500';
+    let btnStyle = 'border-2 p-2 bg-slate-100 mb-10  hover:bg-orange-400 w-24'
+    let cardClass1 = 'border-4 py-4 px-4 text-center w-48 flex flex-col items-center';
+    let cardClass2 = 'border-4 py-4 px-4 text-center w-48 flex flex-col items-center bg-slate-500';
+    let cardClass3 = 'border-4 border-green-600 py-4 px-4 text-center w-48 flex flex-col items-center';
     let colorActive = 'text-amber-500 font-bold';
 
-    return { cardClass1, cardClass2, colorActive };
+    return { btnStyle, cardClass1, cardClass2, cardClass3, colorActive };
+  }
+
+
+  handlerClick = () => {
+    // this.setState({ isVisible: !this.state.isVisible })
+  }
+
+  handlerDelete = () => {
+    this.setState({ isDeleted: true });
+  }
+
+  handlerRecover = () => {
+    this.setState({ isDeleted: false });
   }
 
   render() {
     const style = this.styles();
-    const { name, quantity, image } = this.props.product;
+    const { product: { id, name, quantity, image, isSelected }, selectProduct } = this.props;
+    const { isDeleted } = this.state;
+
+    if (isDeleted) {
+      return (
+        <div>
+          <button onClick={this.handlerRecover} className={style.btnStyle}>Recovery</button>
+        </div>
+      );
+    }
 
     let cardClassName;
     let cardText;
@@ -28,23 +71,29 @@ export class Product extends React.Component<ProductProps> {
       cardText = `кількість: ${quantity}`;
     }
 
+    const changeBorder = isSelected ? style.cardClass3 : '';
+    const changeTextSelect = isSelected ? 'Select ON' : 'Select OFF';
+    if (this.state.isDeleted) {
+      return null;
+    }
+
     return (
-      <div className={cardClassName}>
-        <img src={image} alt={name} className='w-24' />
-        <p>{name}</p>
-        <p>{cardText}</p>
-      </div>
+      <>
+        <div className={`${cardClassName} ${changeBorder}`}>
+          <button onClick={() => selectProduct(id)} className={style.btnStyle}>{changeTextSelect}</button>
+          <button onClick={this.handlerDelete} className={style.btnStyle}>Delete</button>
+          <img src={image} alt={name} className='w-24' />
+          <p>{name}</p>
+          <p>{cardText}</p>
+        </div >
+      </ >
     );
   }
 }
 
-// export function Product(props: ProductProps) {
-//   return (
-//     <div>
-//       <img src={props.product.image} alt={props.product.name} />
-//       <p>{props.product.name}</p>
-//       <p>{props.product.quantity}</p>
-//     </div>
-//   );
-// }
+export default Product;
+
+
+
+
 
